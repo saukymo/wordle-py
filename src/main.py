@@ -7,7 +7,7 @@ from itertools import product
 
 CHARSET = string.digits[:4]
 MAX_LENGTH = 3
-
+MAX_TURNS = 8
 
 class Checker:
     def __init__(self, max_length: int) -> None:
@@ -17,7 +17,7 @@ class Checker:
     def check(target: str, guess: str) -> str:
         # B for black, G for Green, Y for yellow
 
-        assert len(target) == len(guess)
+        assert len(target) == len(guess), f'{target}, {guess} has different length.'
 
         pattern = ""
         for idx, c in enumerate(guess):
@@ -159,94 +159,7 @@ class MinMaxPatternSolver(Solver):
 
 class OptimalSolver(Solver):
 
-    decision: Dict[str, dict] = {
-        "031": {
-            "BGY": {"132": {"GGG": "GG", "GGB": {"133": "GG"}}},
-            "GGG": "GG",
-            "YYB": {
-                "203": {
-                    "GGG": "GG",
-                    "YGY": {"302": "GG"},
-                    "BGY": {"300": "GG"},
-                    "BGG": {"303": "GG"},
-                    "YYY": {"320": "GG"},
-                }
-            },
-            "GBG": {
-                "001": {
-                    "GGG": "GG",
-                    "GYG": {"011": {"GGG": "GG", "GYG": {"021": "GG"}}},
-                }
-            },
-            "GBB": {
-                "022": {
-                    "GGG": "GG",
-                    "GGY": {"020": "GG"},
-                    "GBB": {"000": "GG"},
-                    "GYG": {"002": "GG"},
-                }
-            },
-            "YBY": {
-                "210": {
-                    "BYG": {"100": "GG"},
-                    "YYG": {"120": "GG"},
-                    "GGG": "GG",
-                    "YYY": {"102": "GG"},
-                    "BGG": {"110": "GG"},
-                }
-            },
-            "YYG": {"301": "GG"},
-            "BBY": {"122": {"GGG": "GG", "YYG": {"212": "GG"}, "GYG": {"112": "GG"}}},
-            "YBB": {"220": {"GGG": "GG", "GYY": {"202": "GG"}, "GYG": {"200": "GG"}}},
-            "YGB": {"230": {"GGG": "GG", "BGG": {"330": "GG"}}},
-            "BYB": {"323": {"GGG": "GG", "YGG": {"223": "GG"}, "GGY": {"322": "GG"}}},
-            "BGB": {
-                "232": {
-                    "GGG": "GG",
-                    "BGB": {"333": "GG"},
-                    "GGY": {"233": "GG"},
-                    "YGG": {"332": "GG"},
-                }
-            },
-            "GGB": {
-                "032": {
-                    "GGG": "GG",
-                    "GGB": {"033": {"GGG": "GG", "GGY": {"030": "GG"}}},
-                }
-            },
-            "BYY": {
-                "312": {
-                    "GGG": "GG",
-                    "YGY": {"213": "GG"},
-                    "YYY": {"123": "GG"},
-                    "GGB": {"313": "GG"},
-                    "YGB": {"113": "GG"},
-                }
-            },
-            "YBG": {"101": {"GGG": "GG", "YGG": {"201": "GG"}}},
-            "GYY": {"013": "GG"},
-            "YGY": {"130": "GG"},
-            "BYG": {"321": {"GGG": "GG", "GBG": {"311": "GG"}}},
-            "BGG": {
-                "331": {
-                    "GGG": "GG",
-                    "YGG": {"231": {"GGG": "GG", "BGG": {"131": "GG"}}},
-                }
-            },
-            "BBG": {
-                "121": {
-                    "GGG": "GG",
-                    "GBG": {"111": "GG"},
-                    "YYG": {"211": "GG"},
-                    "YGG": {"221": "GG"},
-                }
-            },
-            "YYY": {"310": {"GGG": "GG", "YYY": {"103": "GG"}}},
-            "GBY": {"010": {"GGG": "GG", "GGY": {"012": "GG"}}},
-            "GYB": {"023": {"GGG": "GG", "GBG": {"003": "GG"}}},
-            "BBB": {"222": "GG"},
-        }
-    }
+    decision: Dict[str, dict] = {'231': {'GGG': {}, 'GBB': {'220': {'GGG': {}, 'GGB': {'222': {'GGG': {}}}, 'GYG': {'200': {'GGG': {}}}, 'GYY': {'202': {'GGG': {}}}}}, 'YBY': {'012': {'YYG': {'102': {'GGG': {}}}, 'BYG': {'122': {'GGG': {}}}, 'GGG': {}, 'YYY': {'120': {'GGG': {}}}, 'BGG': {'112': {'GGG': {}}}}}, 'BYY': {'310': {'GGG': {}, 'YYY': {'103': {'GGG': {}}}, 'YGY': {'013': {'GGG': {}}}, 'YGB': {'113': {'GGG': {}}}, 'GGB': {'313': {'GGG': {}}}}}, 'BBY': {'100': {'GGG': {}, 'YYG': {'010': {'GGG': {}}}, 'GYG': {'110': {'GGG': {}}}}}, 'GYY': {'213': {'GGG': {}}}, 'BGB': {'033': {'GGG': {}, 'BGG': {'333': {'GGG': {}}}, 'YGY': {'330': {'GGG': {}}}, 'GGY': {'030': {'GGG': {}}}}}, 'BGG': {'131': {'GGG': {}, 'YGG': {'331': {'GGG': {}, 'YGG': {'031': {'GGG': {}}}}}}}, 'GBY': {'212': {'GGG': {}, 'GGY': {'210': {'GGG': {}}}}}, 'BBG': {'101': {'GGG': {}, 'YGG': {'001': {'GGG': {}}}, 'GBG': {'111': {'GGG': {}}}, 'YYG': {'011': {'GGG': {}}}}}, 'YYB': {'023': {'GGG': {}, 'YGY': {'320': {'GGG': {}}}, 'YYY': {'302': {'GGG': {}}}, 'BGY': {'322': {'GGG': {}}}, 'BGG': {'323': {'GGG': {}}}}}, 'GYB': {'223': {'GGG': {}, 'GYG': {'203': {'GGG': {}}}}}, 'BYG': {'311': {'GGG': {}, 'GYG': {'301': {'GGG': {}}}}}, 'YBB': {'002': {'GGG': {}, 'GYG': {'022': {'GGG': {}}}, 'GYY': {'020': {'GGG': {}}}}}, 'BYB': {'003': {'GGG': {}, 'YGG': {'303': {'GGG': {}}}, 'YGY': {'300': {'GGG': {}}}}}, 'YYY': {'312': {'GGG': {}, 'YYY': {'123': {'GGG': {}}}}}, 'YBG': {'121': {'GGG': {}, 'YGG': {'021': {'GGG': {}}}}}, 'BGY': {'133': {'GGG': {}, 'GGY': {'130': {'GGG': {}}}}}, 'YGB': {'032': {'GGG': {}, 'BGG': {'332': {'GGG': {}}}}}, 'GGB': {'233': {'GGG': {}, 'GGY': {'232': {'GGG': {}, 'GGY': {'230': {'GGG': {}}}}}}}, 'YGY': {'132': {'GGG': {}}}, 'GBG': {'211': {'GGG': {}, 'GYG': {'201': {'GGG': {}, 'GBG': {'221': {'GGG': {}}}}}}}, 'YYG': {'321': {'GGG': {}}}, 'BBB': {'000': {'GGG': {}}}}}
 
     def guess(self) -> str:
         return list(self.decision.keys())[0]
@@ -272,6 +185,9 @@ def solve(
 ):
 
     assert len(available) > 0
+
+    if current > MAX_TURNS:
+        return
 
     print(
         f"=========================LeveL: {current},  No. of possibilities: {len(available)}========================="
@@ -328,7 +244,7 @@ def solve(
                 f'---------------------------{"-"*(2 * 2 + 2)}---------------------------'
             )
 
-            # 每个pattern_available对应的平均猜测次数
+            # 每个pattern_available对应的决策树和每个结果的猜测次数
             (best_guesses, guess_numbers) = solve(
                 current + 1,
                 pattern_available,
@@ -387,4 +303,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+
+    checker = ABChecker(4)
+    for target in ['1111', '1112', '1121', '1122']:
+        print(target, checker.check(target, '1112'))
