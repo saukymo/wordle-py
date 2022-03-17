@@ -5,9 +5,10 @@ from typing import DefaultDict, Dict, Set, FrozenSet, Type
 from itertools import product
 
 
-CHARSET = string.digits[:4]
+CHARSET = string.digits[:5]
 MAX_LENGTH = 3
 MAX_TURNS = 8
+
 
 class Checker:
     def __init__(self, max_length: int) -> None:
@@ -17,7 +18,7 @@ class Checker:
     def check(target: str, guess: str) -> str:
         # B for black, G for Green, Y for yellow
 
-        assert len(target) == len(guess), f'{target}, {guess} has different length.'
+        assert len(target) == len(guess), f"{target}, {guess} has different length."
 
         pattern = ""
         for idx, c in enumerate(guess):
@@ -101,16 +102,16 @@ class Evaluator:
     def evaluate(self):
         results = []
         for idx, target in enumerate(self.full_set):
-            print(f"========================={idx}, {target}=========================")
+            # print(f"========================={idx}, {target}=========================")
             solver = self.solver_type(self.checker, self.full_set, self.max_length)
 
             current = 0
             while True:
                 current += 1
-                print(f"Round {current}: {len(solver.available)}")
+                # print(f"Round {current}: {len(solver.available)}")
                 guess = solver.guess()
                 pattern = self.checker.check(target, guess)
-                print(f"Guess: {guess}, Pattern: {pattern}")
+                # print(f"Guess: {guess}, Pattern: {pattern}")
 
                 if self.checker.is_success(pattern):
                     break
@@ -121,10 +122,9 @@ class Evaluator:
                     break
 
             results.append(current)
-            if idx > 100:
-                break
 
         assert not 101 in results
+        print(f"Total: {sum(results)}")
         print(f"Avg: {sum(results) / len(results)}")
         print(f"Max: {max(results)}")
 
@@ -159,7 +159,7 @@ class MinMaxPatternSolver(Solver):
 
 class OptimalSolver(Solver):
 
-    decision: Dict[str, dict] = {'231': {'GGG': {}, 'GBB': {'220': {'GGG': {}, 'GGB': {'222': {'GGG': {}}}, 'GYG': {'200': {'GGG': {}}}, 'GYY': {'202': {'GGG': {}}}}}, 'YBY': {'012': {'YYG': {'102': {'GGG': {}}}, 'BYG': {'122': {'GGG': {}}}, 'GGG': {}, 'YYY': {'120': {'GGG': {}}}, 'BGG': {'112': {'GGG': {}}}}}, 'BYY': {'310': {'GGG': {}, 'YYY': {'103': {'GGG': {}}}, 'YGY': {'013': {'GGG': {}}}, 'YGB': {'113': {'GGG': {}}}, 'GGB': {'313': {'GGG': {}}}}}, 'BBY': {'100': {'GGG': {}, 'YYG': {'010': {'GGG': {}}}, 'GYG': {'110': {'GGG': {}}}}}, 'GYY': {'213': {'GGG': {}}}, 'BGB': {'033': {'GGG': {}, 'BGG': {'333': {'GGG': {}}}, 'YGY': {'330': {'GGG': {}}}, 'GGY': {'030': {'GGG': {}}}}}, 'BGG': {'131': {'GGG': {}, 'YGG': {'331': {'GGG': {}, 'YGG': {'031': {'GGG': {}}}}}}}, 'GBY': {'212': {'GGG': {}, 'GGY': {'210': {'GGG': {}}}}}, 'BBG': {'101': {'GGG': {}, 'YGG': {'001': {'GGG': {}}}, 'GBG': {'111': {'GGG': {}}}, 'YYG': {'011': {'GGG': {}}}}}, 'YYB': {'023': {'GGG': {}, 'YGY': {'320': {'GGG': {}}}, 'YYY': {'302': {'GGG': {}}}, 'BGY': {'322': {'GGG': {}}}, 'BGG': {'323': {'GGG': {}}}}}, 'GYB': {'223': {'GGG': {}, 'GYG': {'203': {'GGG': {}}}}}, 'BYG': {'311': {'GGG': {}, 'GYG': {'301': {'GGG': {}}}}}, 'YBB': {'002': {'GGG': {}, 'GYG': {'022': {'GGG': {}}}, 'GYY': {'020': {'GGG': {}}}}}, 'BYB': {'003': {'GGG': {}, 'YGG': {'303': {'GGG': {}}}, 'YGY': {'300': {'GGG': {}}}}}, 'YYY': {'312': {'GGG': {}, 'YYY': {'123': {'GGG': {}}}}}, 'YBG': {'121': {'GGG': {}, 'YGG': {'021': {'GGG': {}}}}}, 'BGY': {'133': {'GGG': {}, 'GGY': {'130': {'GGG': {}}}}}, 'YGB': {'032': {'GGG': {}, 'BGG': {'332': {'GGG': {}}}}}, 'GGB': {'233': {'GGG': {}, 'GGY': {'232': {'GGG': {}, 'GGY': {'230': {'GGG': {}}}}}}}, 'YGY': {'132': {'GGG': {}}}, 'GBG': {'211': {'GGG': {}, 'GYG': {'201': {'GGG': {}, 'GBG': {'221': {'GGG': {}}}}}}}, 'YYG': {'321': {'GGG': {}}}, 'BBB': {'000': {'GGG': {}}}}}
+    decision: Dict[str, dict] = {'132': {'BBB': {'000': {'GGG': {}, 'GGY': {'004': {'GGG': {}}}, 'GYG': {'040': {'GGG': {}}}, 'GYY': {'044': {'GGG': {}}}, 'YGG': {'400': {'GGG': {}}}, 'YGY': {'404': {'GGG': {}}}, 'YYG': {'440': {'GGG': {}}}, 'BBB': {'444': {'GGG': {}}}}}, 'YBB': {'014': {'GYB': {'001': {'GGG': {}}}, 'GGB': {'010': {'GGG': {}, 'GGY': {'011': {'GGG': {}}}}}, 'GGG': {}, 'GYY': {'041': {'GGG': {}}}, 'YYY': {'401': {'GGG': {}}}, 'YGY': {'410': {'GGG': {}}}, 'BGY': {'411': {'GGG': {}}}, 'BGG': {'414': {'GGG': {}}}, 'BYY': {'441': {'GGG': {}}}}}, 'BBG': {'024': {'GYB': {'002': {'GGG': {}}}, 'GGB': {'022': {'GGG': {}}}, 'GYY': {'042': {'GGG': {}}}, 'YYB': {'202': {'GGG': {}}}, 'BGB': {'222': {'GGG': {}}}, 'BYY': {'242': {'GGG': {}, 'YGG': {'442': {'GGG': {}}}}}, 'YYY': {'402': {'GGG': {}}}, 'BGY': {'422': {'GGG': {}}}}}, 'BYB': {'043': {'GBG': {'003': {'GGG': {}}}, 'GGG': {}, 'YBY': {'300': {'GGG': {}}}, 'YBG': {'303': {'GGG': {}}}, 'YYY': {'304': {'GGG': {}}}, 'YGY': {'340': {'GGG': {}}}, 'BGG': {'343': {'GGG': {}, 'YGG': {'443': {'GGG': {}}}}}, 'BGY': {'344': {'GGG': {}}}, 'YYG': {'403': {'GGG': {}}}}}, 'YBG': {'004': {'GYB': {'012': {'GGG': {}}}, 'BBB': {'212': {'GGG': {}}}, 'BBY': {'412': {'GGG': {}}}}}, 'YYB': {'014': {'GGB': {'013': {'GGG': {}}}, 'YYB': {'301': {'GGG': {}}}, 'YGB': {'310': {'GGG': {}}}, 'BGB': {'311': {'GGG': {}, 'GGY': {'313': {'GGG': {}}}}}, 'BGG': {'314': {'GGG': {}}}, 'BYY': {'341': {'GGG': {}}}, 'BGY': {'413': {'GGG': {}}}}}, 'BBY': {'024': {'GGB': {'020': {'GGG': {}}}, 'GGG': {}, 'YYB': {'200': {'GGG': {}}}, 'YYG': {'204': {'GGG': {}}}, 'YGB': {'220': {'GGG': {}}}, 'BGG': {'224': {'GGG': {}, 'YGG': {'424': {'GGG': {}}}}}, 'YYY': {'240': {'GGG': {}}}, 'BYG': {'244': {'GGG': {}}}, 'YGY': {'420': {'GGG': {}}}}}, 'YBY': {'014': {'GYB': {'021': {'GGG': {}}}, 'YYB': {'201': {'GGG': {}}}, 'YGB': {'210': {'GGG': {}}}, 'BGB': {'211': {'GGG': {}}}, 'BGG': {'214': {'GGG': {}}}, 'BYB': {'221': {'GGG': {}}}, 'BYY': {'241': {'GGG': {}, 'YYG': {'421': {'GGG': {}}}}}}}, 'BYY': {'024': {'GGB': {'023': {'GGG': {}}}, 'YYB': {'203': {'GGG': {}}}, 'BGB': {'223': {'GGG': {}, 'YGG': {'323': {'GGG': {}}}}}, 'BYY': {'243': {'GGG': {}}}, 'YGB': {'320': {'GGG': {}}}, 'BGG': {'324': {'GGG': {}}}, 'BGY': {'423': {'GGG': {}}}}}, 'BGB': {'043': {'GBY': {'030': {'GGG': {}}}, 'GBG': {'033': {'GGG': {}}}, 'GYY': {'034': {'GGG': {}}}, 'YBY': {'330': {'GGG': {}}}, 'BBG': {'333': {'GGG': {}}}, 'BYY': {'334': {'GGG': {}, 'YGG': {'434': {'GGG': {}}}}}, 'YYY': {'430': {'GGG': {}}}, 'BYG': {'433': {'GGG': {}}}}}, 'YGB': {'004': {'GYB': {'031': {'GGG': {}}}, 'BBB': {'331': {'GGG': {}}}, 'BBY': {'431': {'GGG': {}}}}}, 'BGG': {'204': {'YYB': {'032': {'GGG': {}}}, 'GBB': {'232': {'GGG': {}}}, 'YBB': {'332': {'GGG': {}}}, 'YBY': {'432': {'GGG': {}}}}}, 'GBB': {'014': {'YYB': {'100': {'GGG': {}, 'GGY': {'101': {'GGG': {}}}}}, 'YYG': {'104': {'GGG': {}}}, 'YGB': {'110': {'GGG': {}}}, 'BGB': {'111': {'GGG': {}}}, 'BGG': {'114': {'GGG': {}}}, 'YYY': {'140': {'GGG': {}}}, 'BYY': {'141': {'GGG': {}}}, 'BYG': {'144': {'GGG': {}}}}}, 'GBG': {'014': {'YYB': {'102': {'GGG': {}}}, 'BGB': {'112': {'GGG': {}}}, 'BYB': {'122': {'GGG': {}}}, 'BYY': {'142': {'GGG': {}}}}}, 'GYB': {'004': {'YGB': {'103': {'GGG': {}}}, 'BBB': {'113': {'GGG': {}}}, 'BBY': {'143': {'GGG': {}}}}}, 'GBY': {'001': {'YYY': {'120': {'GGG': {}}}, 'BBG': {'121': {'GGG': {}}}, 'BBY': {'124': {'GGG': {}}}}}, 'GYY': {'123': {'GGG': {}}}, 'GGB': {'041': {'YBY': {'130': {'GGG': {}}}, 'BBG': {'131': {'GGG': {}}}, 'BBY': {'133': {'GGG': {}}}, 'BYY': {'134': {'GGG': {}}}}}, 'GGG': {}, 'YYY': {'213': {'GGG': {}, 'YYY': {'321': {'GGG': {}}}}}, 'BGY': {'003': {'YYY': {'230': {'GGG': {}}}, 'BBG': {'233': {'GGG': {}}}, 'BBY': {'234': {'GGG': {}}}}}, 'YGY': {'231': {'GGG': {}}}, 'BYG': {'004': {'YGB': {'302': {'GGG': {}}}, 'BBB': {'322': {'GGG': {}}}, 'BBY': {'342': {'GGG': {}}}}}, 'YYG': {'312': {'GGG': {}}}}}
 
     def guess(self) -> str:
         return list(self.decision.keys())[0]
@@ -176,124 +176,9 @@ def get_pattern_for_a_guess(guess: str, checker: Checker, available: Set[str]):
     return results
 
 
-def solve(
-    current: int,
-    available: Set[str],
-    checker: Checker,
-    full_set: FrozenSet[str],
-    attempts: list,
-):
-
-    assert len(available) > 0
-
-    if current > MAX_TURNS:
-        return
-
-    print(
-        f"=========================LeveL: {current},  No. of possibilities: {len(available)}========================="
-    )
-
-    if len(available) == 1:
-        guess = available.pop()
-        return ({guess: "GG"}, {guess: 1})
-
-    results: Dict[str, DefaultDict[str, set]] = {}
-    for guess in available:
-        results[guess] = defaultdict(set)
-        for target in available:
-            pattern = checker.check(target, guess)
-            results[guess][pattern].add(target)
-
-    for guess, patterns in results.items():
-        count = len(patterns.keys())
-
-        max_pattern_count = 0
-        for pattern, pattern_available in patterns.items():
-            max_pattern_count = max(max_pattern_count, len(pattern_available))
-
-        print(
-            f"For {guess}, there are {count} kinds of patterns while the largetest one is {max_pattern_count}"
-        )
-        print(patterns)
-
-    # DFS next level
-    decisions = {}
-    print("Attempts: ", attempts)
-
-    records: Dict[str, dict] = {}
-    for guess, patterns in results.items():
-        # 初始值改成 1， 因为还有当前猜的这一次。
-        counter = {}
-        for a in available:
-            counter[a] = 1
-
-        records[guess] = {}
-
-        for pattern, pattern_available in patterns.items():
-            # 如果是GG，游戏结束
-            if checker.is_success(pattern):
-                counter[guess] += 0
-                records[guess][pattern] = "GG"
-                continue
-
-            print(
-                f"---------------------------{guess}, {pattern}---------------------------"
-            )
-            print(pattern_available)
-            print(
-                f'---------------------------{"-"*(2 * 2 + 2)}---------------------------'
-            )
-
-            # 每个pattern_available对应的决策树和每个结果的猜测次数
-            (best_guesses, guess_numbers) = solve(
-                current + 1,
-                pattern_available,
-                checker,
-                full_set,
-                attempts + [(guess, pattern)],
-            )
-            print(
-                f"LeveL: {current}, Guess: {guess}, Pattern: {pattern}, Best Guess: {best_guesses}: ",
-                guess_numbers,
-            )
-
-            records[guess][pattern] = best_guesses
-
-            for target, count in guess_numbers.items():
-                counter[target] += count
-
-        print(
-            f"*Level: {current}, Guess {guess}, {patterns}, Attempts: {attempts}: ",
-            counter,
-        )
-        decisions[guess] = counter
-
-    print(f"Available: ", available)
-    for a in available:
-        print(f"{a} -> ", results[a])
-    print(f"LeveL: {current}, Decisions: ", decisions)
-
-    min_avg = 10000000.0
-    best_guess = None
-    for guess, counter in decisions.items():
-        avg = sum(counter.values()) / len(counter.values())
-        if avg < min_avg:
-            min_avg = avg
-            best_guess = guess
-        print(f"Guess {guess}, Avg {avg}")
-
-    assert best_guess is not None
-    return ({best_guess: records[best_guess]}, decisions[best_guess])
-
-
 def main():
     # checker = ABChecker(MAX_LENGTH)
     checker = Checker(MAX_LENGTH)
-
-    # full_set = frozenset(
-    #         "".join(c) for c in product(CHARSET, repeat=MAX_LENGTH)
-    #     )
-    # print(solve(0, set(full_set), checker, full_set, []))
 
     # evaluator = Evaluator(checker, Solver, MAX_LENGTH, CHARSET)
     # evaluator = Evaluator(checker, RandomSolver, MAX_LENGTH, CHARSET)
@@ -303,8 +188,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # main()
-
-    checker = ABChecker(4)
-    for target in ['1111', '1112', '1121', '1122']:
-        print(target, checker.check(target, '1112'))
+    main()
