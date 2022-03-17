@@ -6,8 +6,8 @@ from typing import Set, FrozenSet, Tuple, Dict
 from src.main import Checker
 
 CHARSET = string.digits[:3]
-MAX_LENGTH = 2
-MAX_TURNS = 10
+MAX_LENGTH = 3
+MAX_TURNS = 5
 
 
 def dfs(current: int, availables: Set[str], checker: Checker,  full_set: FrozenSet[str]) -> Tuple[dict, int]:
@@ -19,14 +19,13 @@ def dfs(current: int, availables: Set[str], checker: Checker,  full_set: FrozenS
     best_decision_tree = None
 
     # In 5 charset and length 2, full_set get 3.0 while availables get 3.08
-    for idx, guess in enumerate(full_set):
-    # for idx, guess in enumerate(availables):
-        if current < 2:
-            print(current, idx, guess)
+    for guess in sorted(full_set):
+    # for guess in availables:
 
         # 根据 pattern 对 available 分组
+        # TODO: 计算完pattern之后，可以计算所有guess的期望信息量大小，优先搜索期望信息量大的guess
         pattern_results = defaultdict(set)
-        for target in availables:
+        for target in sorted(availables):
             pattern = checker.check(target, guess)
             pattern_results[pattern].add(target)
 
@@ -82,9 +81,10 @@ def dfs(current: int, availables: Set[str], checker: Checker,  full_set: FrozenS
 def main():
     checker = Checker(MAX_LENGTH)
 
-    full_set = frozenset(
-            "".join(c) for c in product(CHARSET, repeat=MAX_LENGTH)
-        )
+    # full_set = frozenset("".join(c) for c in product(CHARSET, repeat=MAX_LENGTH))
+    full_set = frozenset({'233', '232', '231'})
+
+    assert all(len(x) == MAX_LENGTH for x in full_set)
 
     decision_tree, post_guess_count = dfs(0, set(full_set), checker, full_set)
 
