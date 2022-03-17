@@ -1,5 +1,6 @@
-from math import log2, ceil
+import json
 import string
+from math import log2, ceil
 from itertools import product
 from collections import defaultdict
 from typing import DefaultDict, Tuple, Dict, List
@@ -7,7 +8,7 @@ from typing import DefaultDict, Tuple, Dict, List
 from src.main import Checker
 
 CHARSET = string.digits[:5]
-MAX_LENGTH = 3
+MAX_LENGTH = 2
 MAX_TURNS = 5
 
 
@@ -17,6 +18,9 @@ total = 0
 def dfs(
     current: int, availables: List[str], checker: Checker, full_set: List[str]
 ) -> Tuple[dict, int]:
+    # TODO：记忆化，对于搜索过的availables，我们可以直接得到结果，而不用搜索
+    # TODO：如果能计算出两步能够得到的全集，那么如果当前状态不在集合中，即可比较max_turns，然后过滤。
+
     # 如果猜测集是full_set的话，必须要这个条件，因为full_set里会有大量没有信息量的guess
     if current > MAX_TURNS:
         return {}, -1
@@ -26,9 +30,14 @@ def dfs(
 
     pattern_results: Dict[str, DefaultDict[str, list]] = {}
     entropy_results = []
+
+    # 如果只剩2个数，2选1即可，没有必要检查fullset
+    # 对于3个数，最好情况是一次猜测，把结果三分然后再猜一次，这样平均每个结果2次。但是直接猜其中一个，平均每个结果也是2次(1+2+3), 所以3个结果也可以3选1
+    # 对于 5 charset 和 4 max length, > 2 的迭代次数是390277, >3的迭代次数是152197
+    valid_guess = full_set if len(availables) > 3 else availables
+
     # 对于 5 charset 和 2 max length, full_set 平均猜测次数是 3.0 而 availables 的平均猜测次数是 3.08
-    for guess in full_set:
-        # for guess in availables:
+    for guess in valid_guess:
 
         # 根据 pattern 对 available 分组
         pattern_results[guess] = defaultdict(list)
@@ -65,8 +74,6 @@ def dfs(
         # guess_count_sum 是对于当前这个 guess，剩下所有可能结果的猜测次数之和, 而每个结果都至少还要猜1次，后面的post_guess_count是不含本次猜测结果的。
         guess_count_sum = len(availables)
         decision_tree = {}
-
-        # 最优性剪枝: 如果current + 剩余最优可能 > best 跳过
 
         for pattern, pattern_availables in pattern_results[guess].items():
             # 如果当前解就是答案，不用继续猜了。
@@ -115,13 +122,15 @@ def main():
     checker = Checker(MAX_LENGTH)
 
     full_set = ["".join(c) for c in product(CHARSET, repeat=MAX_LENGTH)]
-    # full_set = ['233', '232', '231']
 
     assert all(len(x) == MAX_LENGTH for x in full_set)
 
     decision_tree, post_guess_count = dfs(0, full_set, checker, full_set)
 
     print(decision_tree)
+
+    json.dump(decision_tree, open(f'results/l{MAX_LENGTH}c{len(CHARSET)}.json', 'w'))
+
     print('Total:', post_guess_count)
     print('Avg:', post_guess_count / len(full_set))
     print("Total:", total)
